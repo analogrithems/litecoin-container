@@ -2,7 +2,7 @@
 APP=${APP:=$(echo "STOP you have not set your APP env yet")}
 AWS_ACCOUNT_ID=${AWS_ACCOUNT_ID:=001518439974}
 ECR_APP=${ECR_APP:=${APP}}
-ECR_REGION=${ECR_REGION:=us-west-2}
+ECR_REGION=${ECR_REGION:=us-west-1}
 ECR_REPO=${ECR_REPO:=${AWS_ACCOUNT_ID}.dkr.ecr.${ECR_REGION}.amazonaws.com}
 
 LINT=${LINT:=false} #Valid options are python,python2019,node,false
@@ -160,10 +160,10 @@ if [ -z "$(LC_ALL=C type -t ecr_upload)" ]; then
             if [[ ${BASE_IMAGE} != false ]]
             then
                 ecr_tag_push ${APP} ${ECR_APP} retain.${BASE_IMAGE_SHA},${BASE_IMAGE_SHA},process.this.${GIT_BRANCH}.${GIT_SHA}.${BUILD_NUM}.${TIME_STAMP},${GIT_SHA}.${BUILD_NUM},${GIT_BRANCH}_branch_built_at_${TIME_STAMP}
-                echo -e "\n# Pushed Base Image to us-west-2 ${APP}: `date +%X` ####\n"
+                echo -e "\n# Pushed Base Image to us-west-1 ${APP}: `date +%X` ####\n"
             else
                 ecr_tag_push ${APP} ${ECR_APP} process.this.${GIT_BRANCH}.${GIT_SHA}.${BUILD_NUM}.${TIME_STAMP},${GIT_SHA}.${BUILD_NUM},${GIT_BRANCH}_branch_built_at_${TIME_STAMP}
-                echo -e "\n# Pushed to us-west-2 ${APP}: `date +%X` ####\n"
+                echo -e "\n# Pushed to us-west-1 ${APP}: `date +%X` ####\n"
     
             fi
 
