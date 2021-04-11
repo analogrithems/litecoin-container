@@ -1,0 +1,85 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: block-chain
+provisioner: ebs.csi.aws.com # Amazon EBS CSI driver
+parameters:
+  type: gp2
+  encrypted: 'true' # EBS volumes will always be encrypted by default
+reclaimPolicy: Delete
+mountOptions:
+- debug
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-persistent-cfg
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 60Gi
+  storageClassName: block-chain
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: litecoin-node
+  labels:
+    app: litecoin-node
+spec:
+  ports:
+  - port: 9333
+    name: mainnet
+  clusterIP: None
+  selector:
+    app: litecoin-node
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mainnet
+spec:
+  selector:
+    matchLabels:
+      app: litecoin-node # has to match .spec.template.metadata.labels
+  serviceName: "litecoin-node"
+  replicas: 3 # by default is 1
+  template:
+    metadata:
+      labels:
+        app: litecoin-node # has to match .spec.selector.matchLabels
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: litecoin-node
+        image: DOCKER_IMAGE_NAME
+	    resources:
+	      requests:
+	        memory: "4Gi"
+	        cpu: "500m"
+	      limits:
+	        memory: "8Gi"
+	        cpu: "1024m"
+        env:
+        - name: VERSION_INFO
+          value: "VERSION_INFO_VALUE"
+        - name: BUILD_DATE
+          value: "BUILD_DATE_VALUE"
+        ports:
+        - containerPort: 9333
+          name: mainnet
+        volumeMounts:
+        - name: data
+          mountPath: /litecoin
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      	- ReadWriteOnce
+      storageClassName: "block-chain"
+      resources:
+        requests:
+          storage: 60Gi
