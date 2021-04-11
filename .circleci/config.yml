@@ -31,9 +31,6 @@ jobs:
       - run:
           name: Create deployment manifest
           command: |
-            # Replace the placeholders in the manifest with the intended values.
-            # This is to avoid hardcoding the image name in the manifest, to make this
-            # demo project more portable.
             BUILD_DATE=$(date '+%Y%m%d%H%M%S')
             cat k8s/litecoin-node-statefulset.yaml.template |\
                sed "s|DOCKER_IMAGE_NAME|<< parameters.docker-image-name >>|\
@@ -46,7 +43,7 @@ jobs:
       - kubernetes/create-or-update-resource:
           resource-file-path: "k8s/litecoin-node-statefulset.yaml"
           get-rollout-status: true
-          resource-name: StatefulSet/litecoin-nodes
+          resource-name: StatefulSet/litecoin-node
 
 
 workflows:
